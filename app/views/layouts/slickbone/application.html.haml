@@ -1,0 +1,13 @@
+!!!
+%html
+  %head
+    %title SlickBone
+    = stylesheet_link_tag 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/redmond/jquery-ui.css'
+    = stylesheet_link_tag 'slickgrid/slick.grid.css', 'slickgrid/slick-default-theme'
+    = yield :stylesheets
+  %body
+    = yield
+    = javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"
+    = javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"
+    = javascript_include_tag 'slickgrid.all.js', 'slickbone'
+    = yield :javascripts
