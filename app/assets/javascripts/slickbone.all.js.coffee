@@ -1,2 +1,2 @@
-#= require slickgrid.all
+#= require slickbone.reqs
 #= require slickbone
