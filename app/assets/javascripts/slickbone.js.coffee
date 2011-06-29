@@ -40,21 +40,27 @@ class SlickBone.Collection extends Backbone.Collection
 class SlickBone.Model extends Backbone.Model
   initialize: ->
     @bind 'change', => @deriveFields()
+  
+  @_setUpDerivations: ->
+    @_derivations ||= []
+    if @_derivations == @__super__.constructor._derivations
+      @_derivations = _.clone(@__super__.constructor._derivations) 
 
   @derivedField: (fieldName, derivationFunction) ->
-    @_derivations ||= []
+    @_setUpDerivations()
     @_derivations.push
       field: fieldName
       func:  derivationFunction
 
   @prependDerivedField: (fieldName, derivationFunction) ->
-    @_derivations ||= []
+    @_setUpDerivations()
     @_derivations.unshift
       field: fieldName
       func: derivationFunction
   
-  deriveFields: ->
+  deriveFields: ->  
     for derivation in @constructor._derivations
       result = {}
       result[derivation.field] = derivation.func(@)
       @set(result, silent: true)
+  
