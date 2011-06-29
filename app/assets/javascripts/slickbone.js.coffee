@@ -36,3 +36,25 @@ class SlickBone.Collection extends Backbone.Collection
       attrs = model.toJSON()
       attrs.cid = model.cid
     attrs
+
+class SlickBone.Model extends Backbone.Model
+  initialize: ->
+    @bind 'change', => @deriveFields()
+
+  @derivedField: (fieldName, derivationFunction) ->
+    @_derivations ||= []
+    @_derivations.push
+      field: fieldName
+      func:  derivationFunction
+
+  @prependDerivedField: (fieldName, derivationFunction) ->
+    @_derivations ||= []
+    @_derivations.unshift
+      field: fieldName
+      func: derivationFunction
+  
+  deriveFields: ->
+    for derivation in @constructor._derivations
+      result = {}
+      result[derivation.field] = derivation.func(@)
+      @set(result, silent: true)

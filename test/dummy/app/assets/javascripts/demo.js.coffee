@@ -1,7 +1,9 @@
 #= require 'slickgrid/slick.editors'
 exports = {}
 
-exports.Car    = class Car extends Backbone.Model
+exports.Car    = class Car extends SlickBone.Model
+  @derivedField 'randomTitle', (model) -> 
+    model.get('title')
 
 exports.Garage = class Garage extends SlickBone.Collection
   model: Car
@@ -27,6 +29,7 @@ columns = [
 	{id:"start", name:"Start", field:"start"}
 	{id:"finish", name:"Finish", field:"finish"}
 	{id:"effort-driven", name:"Effort Driven", field:"effortDriven"}
+	{id: "random-title", name:"Random Title", field:"randomTitle"}
 ]
 
 options = 
