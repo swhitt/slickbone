@@ -3,15 +3,15 @@ $:.push File.expand_path("../lib", __FILE__)
 require "slickbone/version"
 
 Gem::Specification.new do |s|
-  s.name        = "slickbone-rails"
+  s.name        = "slickbone"
   s.version     = Slickbone::VERSION
   s.authors     = ["Steve Whittaker"]
   s.email       = ["swhitt@gmail.com"]
-  s.homepage    = "https://github.com/swhitt/slickbone-rails"
+  s.homepage    = "https://github.com/swhitt/slickbone"
   s.summary     = %q{The slickest bone.}
   s.description = %q{Happy marry SlickGrid, Backbone.js and Rails}
 
-  s.rubyforge_project = "slickbone-rails"
+  s.rubyforge_project = "slickbone"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
