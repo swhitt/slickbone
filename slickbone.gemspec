@@ -19,4 +19,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.add_dependency 'rails', '>= 3.1.0.rc4'
   s.add_dependency 'coffee-script'
+  s.add_development_dependency 'jquery-rails'
 end

@@ -7,7 +7,6 @@
     = yield :stylesheets
   %body
     = yield
-    = javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"
-    = javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"
-    = javascript_include_tag 'slickgrid.all.js', 'slickbone'
+    = javascript_include_tag 'jquery', 'jquery-ui'
+    = javascript_include_tag 'slickgrid.all.js'
     = yield :javascripts
