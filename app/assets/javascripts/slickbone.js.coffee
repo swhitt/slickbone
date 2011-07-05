@@ -24,7 +24,7 @@ class SlickBone.Collection extends Backbone.Collection
       @grid.updateRowCount()
       @grid.render()
       
-    @bind 'refresh', (model) => @_setGridData()
+    @bind 'reset', (model) => @_setGridData()
       
   _setGridData: ->
     @grid.setData @
@@ -79,6 +79,6 @@ class SlickBone.Model extends Backbone.Model
         associationDef = @_associations[attribute]
         attrs[attribute] = switch associationDef.associationType
           when 'hasOne' then (new associationDef.model(value))
-          when 'hasMany' then (new associationDef.model).refresh(value)
+          when 'hasMany' then (new associationDef.model).reset(value)
     super
 

@@ -22,7 +22,7 @@ for i in [0..50]
     effortDriven: (i % 5 == 0)
 
 exports.myGarage = myGarage = new Garage
-myGarage.refresh(data)
+myGarage.reset(data)
 
 columns = [
   {id:"title", name:"Title", field:"title", editor: TextCellEditor}
