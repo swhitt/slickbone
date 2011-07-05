@@ -2,8 +2,10 @@
 exports = {}
 
 exports.Car    = class Car extends SlickBone.Model
-  @derivedField 'randomTitle', (model) -> 
-    model.get('title')
+  initialize: ->
+    @derivedField 'randomTitle', (model) -> 
+      model.get('title')
+    
 
 exports.Garage = class Garage extends SlickBone.Collection
   model: Car

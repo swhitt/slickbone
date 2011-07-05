@@ -38,29 +38,47 @@ class SlickBone.Collection extends Backbone.Collection
     attrs
 
 class SlickBone.Model extends Backbone.Model
-  initialize: ->
-    @bind 'change', => @deriveFields()
-  
-  @_setUpDerivations: ->
-    @_derivations ||= []
-    if @_derivations == @__super__.constructor._derivations
-      @_derivations = _.clone(@__super__.constructor._derivations) 
+  constructor: ->
+    @_associations = {}
+    @_derivations  = []
+    super
+    @bind 'change', => @_deriveFields()
+    
 
-  @derivedField: (fieldName, derivationFunction) ->
-    @_setUpDerivations()
+  _addAssociation: (name, model, type) ->
+    @_associations[name] = { model: model, associationType: type }
+
+  hasMany:   (name, model) -> @_addAssociation(name, model, 'hasMany')
+  hasOne:    (name, model) -> @_addAssociation(name, model, 'hasOne')
+    
+  derivedField: (fieldName, derivationFunction) ->
     @_derivations.push
       field: fieldName
       func:  derivationFunction
 
-  @prependDerivedField: (fieldName, derivationFunction) ->
-    @_setUpDerivations()
+  prependDerivedField: (fieldName, derivationFunction) ->
     @_derivations.unshift
       field: fieldName
       func: derivationFunction
   
-  deriveFields: ->  
-    for derivation in @constructor._derivations
+  _deriveFields: ->  
+    for derivation in @_derivations
       result = {}
       result[derivation.field] = derivation.func(@)
       @set(result, silent: true)
-  
+
+  toJSON: ->
+    result = super
+    for attribute, value of result when _.include(_.keys(@_associations), attribute)
+      result[attribute] = value.toJSON?()
+    result
+
+  set: (attrs, options) ->
+    for attribute, value of attrs
+      if _.include(_.keys(@_associations), attribute)
+        associationDef = @_associations[attribute]
+        attrs[attribute] = switch associationDef.associationType
+          when 'hasOne' then (new associationDef.model(value))
+          when 'hasMany' then (new associationDef.model).refresh(value)
+    super
+
