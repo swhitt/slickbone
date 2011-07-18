@@ -58,6 +58,8 @@ class SlickBone.Model extends Backbone.Model
     @converters   = {}
     @derivations  = []
     
+    @setupAssociations()
+    
     # we NEED this so that Backbone.js is happy.
     super
     
@@ -69,6 +71,8 @@ class SlickBone.Model extends Backbone.Model
   # assocation definition hash.
   _addAssociation: (name, model, type) ->
     @associations[name] = { model: model, associationType: type }
+  
+  setupAssociations: ->
 
   # indicates that a given attribute is actually a Collection. Adds the correct settings to
   # the association hash.
@@ -107,8 +111,8 @@ class SlickBone.Model extends Backbone.Model
     for attribute, value of attrs
       if association = @associations[attribute]
         attrs[attribute] = switch association.associationType
-          when 'hasOne' then (new associationDef.model(value))
-          when 'hasMany' then (new associationDef.model).reset(value)
+          when 'hasOne' then (new association.model(value))
+          when 'hasMany' then (new association.model).reset(value)
       if converter = @converters[attribute]
         if _.isFunction(converter)
           attrs[attribute] = converter(value)
