@@ -59,6 +59,8 @@ class SlickBone.Model extends Backbone.Model
     @derivations  = []
     
     @setupAssociations()
+    @setupConversions()
+    @setupDerivations()
     
     # we NEED this so that Backbone.js is happy.
     super
@@ -73,6 +75,8 @@ class SlickBone.Model extends Backbone.Model
     @associations[name] = { model: model, associationType: type }
   
   setupAssociations: ->
+  setupConversions:  ->
+  setupDerivations:  ->
 
   # indicates that a given attribute is actually a Collection. Adds the correct settings to
   # the association hash.
