@@ -1,2 +1,4 @@
-#= require slickbone.reqs
+#= require slickgrid.all
+#= require underscore
+#= require backbone
 #= require slickbone
