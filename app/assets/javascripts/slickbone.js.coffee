@@ -69,15 +69,15 @@ class SlickBone.Model extends Backbone.Model
     # that the Backbone.js model is all set up.
     @bind 'change', => @_executeDerivations()
 
+  setupAssociations:  ->
+  setupConverters:    ->
+  setupDerivations:   ->
+
   # Helper method used by the association definition methods. Actually modifies the
   # assocation definition hash.
   _addAssociation: (name, model, type) ->
     @associations[name] = { model: model, associationType: type }
   
-  setupAssociations:  ->
-  setupConverters:    ->
-  setupDerivations:   ->
-
   # indicates that a given attribute is actually a Collection. Adds the correct settings to
   # the association hash.
   hasMany:   (name, collection) -> @_addAssociation(name, collection, 'hasMany')
@@ -105,7 +105,10 @@ class SlickBone.Model extends Backbone.Model
     @derivations.unshift
       field: fieldName
       func: derivationFunction
-  
+
+  addConverter: (fieldName, conversionFunction) ->
+    @converters[fieldName] = conversionFunction
+
   # Override the default Backbone.js set method to handle our added functionality.
   # Iterate through the attributes being set and:
   # * If the attribute name is one of the associations, set that as the attribute instead of
@@ -123,7 +126,7 @@ class SlickBone.Model extends Backbone.Model
         else
           throw "The conversion function for #{attribute} is invalid; it must be a function."
     super
-  
+
   # Override the default Backbone.js `toJSON` method to handle associations.
   toJSON: ->
     result = super
