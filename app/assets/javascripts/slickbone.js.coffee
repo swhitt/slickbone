@@ -67,6 +67,9 @@ class SlickBone.Model extends Backbone.Model
     
     # we want the derivations functionality to load after the call to `super` so 
     # that the Backbone.js model is all set up.
+    # First, we execute them immediately
+    @_executeDerivations()
+    # Then, we set them up to run whenever a model changes
     @bind 'change', => @_executeDerivations()
 
   setupAssociations:  ->
