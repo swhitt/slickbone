@@ -1,3 +1,19 @@
-#myGrid {
+h1 {
+  font: 33px helvetica,arial,freesans,clean,sans-serif;
+}
+#slickBoneGrid {
   height: 600px;
+  width: 600px;
+  border: 1px solid gray;
+  font-family: arial;
+  font-size: 8pt;
+}
+input.editor-text {
+    background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    height: 100%;
+    margin: 0;
+    outline: 0 none;
+    padding: 0;
+    width: 100%;
 }
