@@ -11,30 +11,48 @@ class SlickBone.Collection extends Backbone.Collection
   # Do NOT call this method on a grid that already has another, established data source unless
   # you are CERTAIN you do not mind losing the other data. 
   setGrid: (@grid) ->
+    # Set the grid's data property to the instance of SlickboneCollection, and then tell it to
+    # invalidate itself.
     @_setGridData()
     
+    # Listen for cell change events from the grid, update our models with new data
     @grid.onCellChange.subscribe (event, args) =>
       modelToUpdate = if args.item.id? then @get(args.item.id) else @getByCid(args.item.cid)
       modelToUpdate.set(args.item)
     
+    # Create a new model instance if a row is added to the grid
     @grid.onAddNewRow.subscribe (event, args) => @add(args.item)
-
+    
+    # SlickGrid only sends a onSort message when the user clicks the column headers to sort
+    # Listen for the event, change the Collection's comparator appropriately and re-sort.
+    # The grid will pick up the changes because we raise a `reset` event after sort().
+    @grid.onSort.subscribe (event, args) =>
+      @comparator = (model) =>
+        field = args.sortCol.field
+        fieldValue = model.get(field)
+        if args.sortAsc then fieldValue else -(@sortedIndex(model, (m) -> m.get(field)))
+      @sort()
+    
+    # Tell the grid when a model is added to SlickBone.Collection.
     @bind 'add', (model)  => 
       @grid.updateRowCount()
       @grid.invalidateRow(@length - 1)
       @grid.render()
-
+    
+    # Tell the grid when a model is changed in a SlickBone.Collection.
     @bind 'change', (model) =>
       @grid.invalidateRow @indexOf(model)
       @grid.render()
     
+    # Tell the grid that a model has been removed from a SlickBone.Collection.
     @bind 'remove', (model) => 
       @grid.updateRowCount()
       @grid.render()
-      
+    
+    # Reset the grid when the collection's contents are reset. 
     @bind 'reset', (model) => @_setGridData()
   
-  # replace the grid's data with us.
+  # replace the grid's data with us and tell it to recalculate everything.
   _setGridData: ->
     @grid.setData @
     @grid.invalidate()
