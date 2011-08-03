@@ -27,7 +27,7 @@ myGarage.reset(data)
 columns = [
   { id: "title",          name: "Title",          width: 120, field: "title",       sortable: true, editor: TextCellEditor  }
   { id: "duration",       name: "Duration",       width: 55,  field: "duration",    sortable: true                          }
-  { id: "%",              name: "%",              width: 50,  field: "percent",     sortable: true                          }
+  { id: "%",              name: "%",              width: 50,  field: "percent",     sortable: true, sortType: 'number'      }
   { id: "start",          name: "Start",          width: 70,  field: "start"                                                }
   { id: "finish",         name: "Finish",         width: 70,  field: "finish"                                               }
   { id: "effort-driven",  name: "Effort Driven",  width: 75,  field: "effortDriven"                                         }

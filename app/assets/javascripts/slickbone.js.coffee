@@ -27,10 +27,9 @@ class SlickBone.Collection extends Backbone.Collection
     # Listen for the event, change the Collection's comparator appropriately and re-sort.
     # The grid will pick up the changes because we raise a `reset` event after sort().
     @grid.onSort.subscribe (event, args) =>
-      @comparator = (model) =>
-        field = args.sortCol.field
-        fieldValue = model.get(field)
-        if args.sortAsc then fieldValue else -(@sortedIndex(model, (m) -> m.get(field)))
+      console.log 'args', arguments...
+      sortType = args.sortCol.sortType || 'string'
+      @comparator = @comparatorDefinitions[sortType](@, args.sortCol.field, args.sortAsc)
       @sort()
     
     # Tell the grid when a model is added to SlickBone.Collection.
@@ -51,7 +50,7 @@ class SlickBone.Collection extends Backbone.Collection
     
     # Reset the grid when the collection's contents are reset. 
     @bind 'reset', (model) => @_setGridData()
-  
+    
   # replace the grid's data with us and tell it to recalculate everything.
   _setGridData: ->
     @grid.setData @
@@ -64,6 +63,17 @@ class SlickBone.Collection extends Backbone.Collection
       attrs = model.toJSON()
       attrs.cid = model.cid
     attrs
+  
+  # You can modify this hash to define different comparator types.
+  comparatorDefinitions:
+    number: (collection, field, sortAsc) ->
+      (model) -> 
+        val = Number(model.get(field))
+        if sortAsc then val else -val
+    string: (collection, field, sortAsc) ->
+      (model) ->
+        fieldValue = model.get(field)
+        if sortAsc then fieldValue else -(collection.sortedIndex(model, (m) -> m.get(field)))
 
 # SlickBone.Model is not necessary to use SlickBone; it is simply a collection of 
 # useful-for-SlickGrid extensions to Backbone.Model.
@@ -76,6 +86,7 @@ class SlickBone.Model extends Backbone.Model
     @converters   = {}
     @derivations  = []
     
+    # these convenience methods should be overridden in classes that inherit from SlickBone.Model
     @setupAssociations()
     @setupConverters()
     @setupDerivations()
@@ -87,9 +98,11 @@ class SlickBone.Model extends Backbone.Model
     # that the Backbone.js model is all set up.
     # First, we execute them immediately
     @_executeDerivations()
+    
     # Then, we set them up to run whenever a model changes
     @bind 'change', => @_executeDerivations()
-
+  
+  # Stubs for associations, converters and derivations that can be overridden in implementing classes
   setupAssociations:  ->
   setupConverters:    ->
   setupDerivations:   ->
