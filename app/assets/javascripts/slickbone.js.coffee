@@ -99,26 +99,27 @@ class SlickBone.Model extends Backbone.Model
     # First, we execute them immediately
     @_executeDerivations()
     
+    @_createEmptyCollections()
+    
     # Then, we set them up to run whenever a model changes
     @bind 'change', => @_executeDerivations()
+    
+    @_slickboneInitialized = true
   
   # Stubs for associations, converters and derivations that can be overridden in implementing classes
   setupAssociations:  ->
   setupConverters:    ->
   setupDerivations:   ->
-
-  # Helper method used by the association definition methods. Actually modifies the
-  # assocation definition hash.
-  _addAssociation: (name, model, type) ->
-    @associations[name] = { model: model, associationType: type }
   
   # indicates that a given attribute is actually a Collection. Adds the correct settings to
   # the association hash.
-  hasMany:   (name, collection) -> @_addAssociation(name, collection, 'hasMany')
-
+  hasMany:   (name, collection) -> 
+    @associations[name] = { model: collection, associationType: 'hasMany' }
+    
   # indicates that a given attribute is actually a Model. Adds the correct settings to
   # the association hash.
-  hasOne:    (name, model)      -> @_addAssociation(name, model, 'hasOne')
+  hasOne:    (name, model)      -> 
+    @associations[name] = { model: model, associationType: 'hasOne' }
   
   # Actually calculate and set the derived fields in the prescribed order as
   # specified by the derivation chain.
@@ -128,39 +129,63 @@ class SlickBone.Model extends Backbone.Model
       result[derivation.field] = derivation.func(@)
       @set(result, silent: true)
   
+  _createEmptyCollections: ->
+    return if @_emptyCollectionsCreated
+    for name, definition of @associations
+      if definition.associationType == 'hasMany'
+        newCollection = new definition.model()
+        newCollection.bind 'all', @handleAssociatedCollectionEvent
+        @attributes[name] = new definition.model() 
+    @_emptyCollectionsCreated = true
+  
   # Add a derived field to the end of the derivation chain.
   derivedField: (fieldName, derivationFunction) ->
     @derivations.push
       field: fieldName
       func:  derivationFunction
-
+  
   # Add a derived field at the start of the derivation field. 
   prependDerivedField: (fieldName, derivationFunction) ->
     @derivations.unshift
       field: fieldName
       func: derivationFunction
-
+  
   addConverter: (fieldName, conversionFunction) ->
     @converters[fieldName] = conversionFunction
-
+  
   # Override the default Backbone.js set method to handle our added functionality.
   # Iterate through the attributes being set and:
   # * If the attribute name is one of the associations, set that as the attribute instead of
   #   the options hash passed in.
   # * If an attribute being set is subject to conversion, execute the type conversion.
   set: (attrs, options) ->
+    @_createEmptyCollections() unless @_emptyCollectionsCreated #
     for attribute, value of attrs
       if association = @associations[attribute]
+        currentValue = @attributes[attribute]
         attrs[attribute] = switch association.associationType
-          when 'hasOne' then (new association.model(value))
-          when 'hasMany' then (new association.model).reset(value)
+          when 'hasOne' 
+            if currentValue 
+              currentValue.set(value, silent: true) 
+            else 
+              newModel = new association.model(value)
+              newModel.bind 'all', @handleAssociatedModelEvent
+              newModel
+          when 'hasMany'
+            @attributes[attribute].reset(value, silent: true)
       if converter = @converters[attribute]
         if _.isFunction(converter)
-          attrs[attribute] = converter(value)
+          attrs[attribute] = converter(value)#
         else
           throw "The conversion function for #{attribute} is invalid; it must be a function."
     super
-
+  
+  handleAssociatedModelEvent: =>
+    Compass.debug('associated model event. context:', @, 'args:', arguments)
+  
+  handleAssociatedCollectionEvent: =>
+    Compass.debug('associated collection event. context:', @, 'args:', arguments)
+  
   # Override the default Backbone.js `toJSON` method to handle associations.
   toJSON: ->
     result = super
