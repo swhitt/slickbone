@@ -155,6 +155,7 @@ class SlickBone.Model extends Backbone.Model
   #   the options hash passed in.
   # * If an attribute being set is subject to conversion, execute the type conversion.
   set: (attrs, options) ->
+    if attrs.attributes then attrs = attrs.attributes
     @_createEmptyCollections() unless @_emptyCollectionsCreated
     for attribute, value of attrs
       if association = @associations[attribute]
