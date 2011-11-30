@@ -27,7 +27,6 @@ class SlickBone.Collection extends Backbone.Collection
     # Listen for the event, change the Collection's comparator appropriately and re-sort.
     # The grid will pick up the changes because we raise a `reset` event after sort().
     @grid.onSort.subscribe (event, args) =>
-      console.log 'args', arguments...
       sortType = args.sortCol.sortType || 'string'
       @comparator = @comparatorDefinitions[sortType](@, args.sortCol.field, args.sortAsc)
       @sort()
@@ -131,11 +130,8 @@ class SlickBone.Model extends Backbone.Model
   
   _createEmptyCollections: ->
     return if @_emptyCollectionsCreated
-    for name, definition of @associations
-      if definition.associationType == 'hasMany'
-        newCollection = new definition.model()
-        newCollection.bind 'all', @handleAssociatedCollectionEvent
-        @attributes[name] = new definition.model() 
+    for name, definition of @associations when definition.associationType == 'hasMany'
+      @attributes[name] = (new definition.model).bind('all', @handleAssociatedCollectionEvent)
     @_emptyCollectionsCreated = true
   
   # Add a derived field to the end of the derivation chain.
@@ -159,32 +155,33 @@ class SlickBone.Model extends Backbone.Model
   #   the options hash passed in.
   # * If an attribute being set is subject to conversion, execute the type conversion.
   set: (attrs, options) ->
-    @_createEmptyCollections() unless @_emptyCollectionsCreated #
+    @_createEmptyCollections() unless @_emptyCollectionsCreated
     for attribute, value of attrs
       if association = @associations[attribute]
         currentValue = @attributes[attribute]
+        
         attrs[attribute] = switch association.associationType
           when 'hasOne' 
             if currentValue 
               currentValue.set(value, silent: true) 
             else 
-              newModel = new association.model(value)
-              newModel.bind 'all', @handleAssociatedModelEvent
-              newModel
+              (new association.model(value)).bind 'all', @handleAssociatedModelEvent
           when 'hasMany'
             @attributes[attribute].reset(value, silent: true)
       if converter = @converters[attribute]
         if _.isFunction(converter)
-          attrs[attribute] = converter(value)#
+          attrs[attribute] = converter(value)
         else
           throw "The conversion function for #{attribute} is invalid; it must be a function."
     super
   
   handleAssociatedModelEvent: =>
-    Compass.debug('associated model event. context:', @, 'args:', arguments)
+    alert('models')
   
-  handleAssociatedCollectionEvent: =>
-    Compass.debug('associated collection event. context:', @, 'args:', arguments)
+  handleAssociatedCollectionEvent: (event, changedItem, options) =>
+    switch event
+      when 'change', 'add', 'remove', 'reset'
+        @change(options)
   
   # Override the default Backbone.js `toJSON` method to handle associations.
   toJSON: ->
