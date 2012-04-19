@@ -32,7 +32,7 @@ class SlickBone.Collection extends Backbone.Collection
       @sort()
     
     # Tell the grid when a model is added to SlickBone.Collection.
-    @bind 'add', (model)  => 
+    @bind 'add', (model)  =>
       @grid.updateRowCount()
       @grid.invalidateRow(@length - 1)
       @grid.render()
@@ -43,7 +43,7 @@ class SlickBone.Collection extends Backbone.Collection
       @grid.render()
     
     # Tell the grid that a model has been removed from a SlickBone.Collection.
-    @bind 'remove', (model) => 
+    @bind 'remove', (model) =>
       @grid.updateRowCount()
       @grid.render()
     
@@ -56,7 +56,7 @@ class SlickBone.Collection extends Backbone.Collection
     @grid.invalidate()
   
   # Return the JSON associated with a particular index in the collection.
-  getItem: (index) -> 
+  getItem: (index) ->
     model = @at(index)
     if model?
       attrs = model.toJSON()
@@ -66,7 +66,7 @@ class SlickBone.Collection extends Backbone.Collection
   # You can modify this hash to define different comparator types.
   comparatorDefinitions:
     number: (collection, field, sortAsc) ->
-      (model) -> 
+      (model) ->
         val = Number(model.get(field))
         if sortAsc then val else -val
     string: (collection, field, sortAsc) ->
@@ -112,17 +112,17 @@ class SlickBone.Model extends Backbone.Model
   
   # indicates that a given attribute is actually a Collection. Adds the correct settings to
   # the association hash.
-  hasMany:   (name, collection) -> 
+  hasMany:   (name, collection) ->
     @associations[name] = { model: collection, associationType: 'hasMany' }
     
   # indicates that a given attribute is actually a Model. Adds the correct settings to
   # the association hash.
-  hasOne:    (name, model)      -> 
+  hasOne:    (name, model)      ->
     @associations[name] = { model: model, associationType: 'hasOne' }
   
   # Actually calculate and set the derived fields in the prescribed order as
   # specified by the derivation chain.
-  _executeDerivations: ->  
+  _executeDerivations: ->
     for derivation in @derivations
       result = {}
       result[derivation.field] = derivation.func(@)
@@ -162,13 +162,13 @@ class SlickBone.Model extends Backbone.Model
         currentValue = @attributes[attribute]
         
         attrs[attribute] = switch association.associationType
-          when 'hasOne' 
-            if currentValue 
-              currentValue.set(value, silent: true) 
-            else 
+          when 'hasOne'
+            if currentValue
+              currentValue.set(value)
+            else
               (new association.model(value)).bind 'all', @handleAssociatedModelEvent
           when 'hasMany'
-            @attributes[attribute].reset(value, silent: true)
+            @attributes[attribute].reset(value)
       if converter = @converters[attribute]
         if _.isFunction(converter)
           attrs[attribute] = converter(value)
