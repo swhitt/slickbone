@@ -30,6 +30,7 @@ class SlickBone.Collection extends Backbone.Collection
       sortType = args.sortCol.sortType || 'string'
       @comparator = @comparatorDefinitions[sortType](@, args.sortCol.field, args.sortAsc)
       @sort()
+      @comparator = null
     
     # Tell the grid when a model is added to SlickBone.Collection.
     @bind 'add', (model)  =>
