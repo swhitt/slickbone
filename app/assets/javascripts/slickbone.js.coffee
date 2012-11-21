@@ -183,7 +183,7 @@ class SlickBone.Model extends Backbone.Model
   handleAssociatedCollectionEvent: (event, changedItem, options) =>
     switch event
       when 'change', 'add', 'remove', 'reset'
-        @change(options)
+        @trigger('change', @, options)
   
   # Override the default Backbone.js `toJSON` method to handle associations.
   toJSON: ->
